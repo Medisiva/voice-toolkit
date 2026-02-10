@@ -126,8 +126,8 @@ class InteractiveVoiceClaude:
         print("\n🎤 Listening...")
 
         audio = self.recorder.record_until_silence(
-            silence_threshold=0.01,
-            silence_duration=1.2,
+            silence_threshold=0.005,
+            silence_duration=1.5,
             max_duration=30.0,
         )
 

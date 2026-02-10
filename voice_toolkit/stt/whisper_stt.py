@@ -193,12 +193,12 @@ class MicrophoneRecorder:
 
     def record_until_silence(
         self,
-        silence_threshold: float = 0.01,
+        silence_threshold: float = 0.005,
         silence_duration: float = 1.5,
         max_duration: float = 30.0,
     ) -> np.ndarray:
         """
-        Record audio until silence is detected.
+        Record audio until silence is detected AFTER speech starts.
 
         Args:
             silence_threshold: RMS threshold for silence detection
@@ -222,6 +222,7 @@ class MicrophoneRecorder:
 
         chunks = []
         silent_count = 0
+        speech_started = False
 
         print("Recording... (speak now, will stop after silence)")
 
@@ -238,13 +239,20 @@ class MicrophoneRecorder:
 
             # Check for silence
             rms = np.sqrt(np.mean(chunk**2))
-            if rms < silence_threshold:
-                silent_count += 1
-                if silent_count >= silence_chunks and len(chunks) > silence_chunks:
-                    print("Silence detected, stopping.")
-                    break
-            else:
+
+            if rms >= silence_threshold:
+                # Speech detected
+                if not speech_started:
+                    print("Speech detected...")
+                    speech_started = True
                 silent_count = 0
+            else:
+                # Silence
+                if speech_started:
+                    silent_count += 1
+                    if silent_count >= silence_chunks:
+                        print("Silence detected, stopping.")
+                        break
 
         print("Recording complete.")
         return np.concatenate(chunks)
