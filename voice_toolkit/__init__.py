@@ -15,13 +15,14 @@ Usage:
 """
 
 from .assistant.voice_assistant import VoiceAssistant
-from .stt import WhisperSTT, BaseSTT
+from .stt import WhisperSTT, FasterWhisperSTT, BaseSTT
 from .tts import PiperTTS, EdgeTTS, BaseTTS
 
 __version__ = "0.1.0"
 __all__ = [
     "VoiceAssistant",
     "WhisperSTT",
+    "FasterWhisperSTT",
     "BaseSTT",
     "PiperTTS",
     "EdgeTTS",
