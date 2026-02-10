@@ -55,6 +55,7 @@ class InteractiveVoiceClaude:
         self.master_fd = master_fd
 
         # Start Claude in the pty
+        # Use --continue to resume session, add --dangerously-skip-permissions if trusted
         self.claude_process = subprocess.Popen(
             ["claude", "--continue"],
             stdin=slave_fd,
@@ -62,6 +63,7 @@ class InteractiveVoiceClaude:
             stderr=slave_fd,
             cwd=self.cwd,
             preexec_fn=os.setsid,
+            env={**os.environ, "CLAUDE_TRUST_FOLDER": "1"},
         )
 
         os.close(slave_fd)
@@ -70,8 +72,14 @@ class InteractiveVoiceClaude:
         self.output_thread = threading.Thread(target=self._read_output, daemon=True)
         self.output_thread.start()
 
-        # Wait for Claude to be ready
+        # Wait for Claude to initialize and auto-accept trust prompt if shown
         time.sleep(2)
+
+        # Send "1" and Enter to accept folder trust if prompted
+        if "trust this folder" in self.output_buffer.lower():
+            os.write(self.master_fd, b"1\n")
+            time.sleep(1)
+
         print("Claude session started!")
 
     def _read_output(self):
