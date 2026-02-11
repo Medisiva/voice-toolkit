@@ -29,7 +29,7 @@ from voice_toolkit.tts import EdgeTTS
 class InteractiveVoiceClaude:
     """Interactive voice interface for Claude Code."""
 
-    def __init__(self, cwd: str = None, model: str = "base"):
+    def __init__(self, cwd: str = None, model: str = "small"):
         self.cwd = cwd or os.getcwd()
         self.stt = FasterWhisperSTT(model=model)
         self.tts = EdgeTTS(voice="aria")
