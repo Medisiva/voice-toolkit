@@ -15,9 +15,12 @@ import pty
 import select
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from pathlib import Path
+
+import soundfile as sf
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -141,7 +144,18 @@ class InteractiveVoiceClaude:
 
         self.listening = False
         print("🔄 Transcribing...")
-        text = self.stt.transcribe(audio)
+
+        # Save to temp file for better transcription accuracy
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
+            temp_path = f.name
+        sf.write(temp_path, audio, 16000)
+
+        # Transcribe from file (more accurate than numpy array)
+        text = self.stt.transcribe(temp_path, language="en")
+
+        # Cleanup
+        os.unlink(temp_path)
+
         return text.strip()
 
     async def speak(self, text: str):
