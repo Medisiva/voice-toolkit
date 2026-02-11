@@ -41,6 +41,18 @@ class VoiceClaudeHandler(SimpleHTTPRequestHandler):
         message = data.get('message', '')
         cwd = data.get('cwd', os.getcwd())
 
+        # Common speech recognition fixes
+        replacements = {
+            'clark': 'claude',
+            'Clark': 'Claude',
+            'clod': 'claude',
+            'Clod': 'Claude',
+            'cloud': 'claude',
+            'Cloud': 'Claude',
+        }
+        for wrong, right in replacements.items():
+            message = message.replace(wrong, right)
+
         print(f"\n>>> User: {message}")
         print(f"    CWD: {cwd}")
 
